@@ -7,6 +7,7 @@
  * Author:            اتحاد وردپرس
  * Author URI:        https://etehadwp.com
  * Text Domain:       pasokhban
+ * Domain Path:       /languages
  * Requires at least: 5.8
  * Requires PHP:      7.4
  * License:           GPL-2.0-or-later

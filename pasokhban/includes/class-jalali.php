@@ -48,6 +48,9 @@ final class Pasokhban_Jalali {
 	 * @return bool
 	 */
 	public static function enabled() {
+		if ( 'fa' !== self::mode() ) {
+			return false;
+		}
 		if ( ! class_exists( 'Pasokhban_Settings' ) ) {
 			return false;
 		}
@@ -61,11 +64,35 @@ final class Pasokhban_Jalali {
 	 * @return bool
 	 */
 	public static function fa_digits() {
+		if ( 'fa' !== self::mode() ) {
+			return false;
+		}
 		if ( ! class_exists( 'Pasokhban_Settings' ) ) {
 			return false;
 		}
 		$opts = Pasokhban_Settings::instance()->get_options();
 		return ! empty( $opts['jalali_digits'] );
+	}
+
+	/**
+	 * قالب نمایش تاریخ و ارقام: fa | en
+	 *
+	 * تنظیم locale_format: auto (پیش‌فرض) یعنی اگر زبان سایت فارسی است «fa»
+	 * و در غیر این صورت «en» (میلادی، ارقام لاتین، قالب تاریخ خود وردپرس).
+	 * سایت‌های فارسی بدون تغییر کار می‌کنند.
+	 *
+	 * @return string fa|en
+	 */
+	public static function mode() {
+		$choice = 'auto';
+		if ( class_exists( 'Pasokhban_Settings' ) ) {
+			$opts   = Pasokhban_Settings::instance()->get_options();
+			$choice = isset( $opts['locale_format'] ) ? (string) $opts['locale_format'] : 'auto';
+		}
+		if ( 'fa' === $choice || 'en' === $choice ) {
+			return $choice;
+		}
+		return 0 === strpos( (string) get_locale(), 'fa' ) ? 'fa' : 'en';
 	}
 
 	/**
@@ -220,6 +247,22 @@ final class Pasokhban_Jalali {
 		$l   = $ts + $off;
 
 		$g = array( (int) gmdate( 'Y', $l ), (int) gmdate( 'n', $l ), (int) gmdate( 'j', $l ) );
+
+		// قالب غیرفارسی: میلادی با قالب تاریخ/ساعت خود وردپرس (ترجمه و ارقام لاتین)
+		if ( ! self::enabled() && 'fa' !== self::mode() ) {
+			$date_fmt = (string) get_option( 'date_format', 'Y/m/d' );
+			$time_fmt = (string) get_option( 'time_format', 'H:i' );
+			switch ( $format ) {
+				case 'date':
+				case 'long':
+				case 'full':
+					return wp_date( $date_fmt, $ts );
+				case 'time':
+					return wp_date( $time_fmt, $ts );
+				default:
+					return wp_date( $date_fmt . ' ' . $time_fmt, $ts );
+			}
+		}
 
 		if ( ! self::enabled() ) {
 			$hh = gmdate( 'H:i', $l );

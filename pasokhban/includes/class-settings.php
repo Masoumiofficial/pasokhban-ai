@@ -130,6 +130,7 @@ final class Pasokhban_Settings {
 			// ---- ۲.۴.۰ : ایرانی‌سازی ----
 			'jalali_dates'       => 1,           // نمایش تاریخ شمسی
 			'jalali_digits'      => 1,           // ارقام فارسی
+			'locale_format'      => 'auto',      // auto | fa | en — قالب تاریخ و ارقام (auto: بر اساس زبان سایت)
 			'sms_enabled'        => 0,
 			'sms_provider'       => 'kavenegar',  // kavenegar | melipayamak | smsir
 			'sms_api_key'        => '',
@@ -502,6 +503,10 @@ final class Pasokhban_Settings {
 			$out[ $b ] = ! empty( $input[ $b ] ) ? 1 : 0;
 		}
 
+		// قالب تاریخ/ارقام: فقط مقدارهای مجاز پذیرفته می‌شوند
+		$lf                   = isset( $input['locale_format'] ) ? (string) $input['locale_format'] : 'auto';
+		$out['locale_format'] = in_array( $lf, array( 'auto', 'fa', 'en' ), true ) ? $lf : 'auto';
+
 		return $out;
 	}
 
@@ -608,8 +613,17 @@ final class Pasokhban_Settings {
 											<input type="checkbox" name="pasokhban_options[jalali_digits]" value="1" <?php checked( 1, $opts['jalali_digits'] ); ?> />
 											<span></span> ارقام فارسی (۱۲۳ به‌جای 123)
 										</label>
-										<p class="psb-set-desc">روی اینباکس، مخاطبین، آمار، تاریخ سفارش ووکامرس و نام فایل‌های CSV اثر می‌گذارد. تاریخ در دیتابیس میلادی می‌ماند تا مرتب‌سازی خراب نشود.</p>
+									<p class="psb-set-desc">روی اینباکس، مخاطبین، آمار، تاریخ سفارش ووکامرس و نام فایل‌های CSV اثر می‌گذارد. تاریخ در دیتابیس میلادی می‌ماند تا مرتب‌سازی خراب نشود.</p>
+									<div style="margin-top:10px">
+										<label for="psb-locale-format">قالب تاریخ و ارقام</label>
+										<select id="psb-locale-format" name="pasokhban_options[locale_format]">
+											<option value="auto" <?php selected( 'auto', $opts['locale_format'] ?? 'auto' ); ?>>خودکار (بر اساس زبان سایت)</option>
+											<option value="fa" <?php selected( 'fa', $opts['locale_format'] ?? 'auto' ); ?>>فارسی: شمسی و ارقام فارسی (طبق تنظیمات بالا)</option>
+											<option value="en" <?php selected( 'en', $opts['locale_format'] ?? 'auto' ); ?>>میلادی با قالب و ارقام زبان سایت (انگلیسی/عربی)</option>
+										</select>
+										<p class="psb-set-desc">در حالت خودکار، سایت فارسی همان رفتار قبلی را دارد و سایت انگلیسی یا عربی تاریخ میلادی با ارقام لاتین نمایش می‌دهد.</p>
 									</div>
+								</div>
 								</div>
 
 								<div class="psb-set-row">
